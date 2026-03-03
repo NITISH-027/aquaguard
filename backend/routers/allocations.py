@@ -1,6 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, case
 
 from database import get_db
 from models import Allocation, AuditLog
@@ -112,25 +113,36 @@ def list_allocations(
 
 @router.get("/cycle-summary", response_model=List[CycleSummary])
 def cycle_summary(db: Session = Depends(get_db)):
-    """Aggregated summary per allocation cycle."""
-    cycles = [row[0] for row in db.query(Allocation.allocation_cycle).distinct().all()]
-
-    summaries = []
-    for cycle in cycles:
-        allocs = db.query(Allocation).filter(Allocation.allocation_cycle == cycle).all()
-        summaries.append(
-            CycleSummary(
-                allocation_cycle=cycle,
-                total_regions=len(allocs),
-                total_requested=sum(a.requested_volume for a in allocs),
-                total_allocated=sum(a.allocated_volume for a in allocs),
-                approved_count=sum(1 for a in allocs if a.status == "Approved"),
-                reduced_count=sum(1 for a in allocs if a.status == "Reduced"),
-                deferred_count=sum(1 for a in allocs if a.status == "Deferred"),
-                rejected_count=sum(1 for a in allocs if a.status == "Rejected"),
-            )
+    """Aggregated summary per allocation cycle using a single GROUP BY query."""
+    rows = (
+        db.query(
+            Allocation.allocation_cycle,
+            func.count(Allocation.id).label("total_regions"),
+            func.sum(Allocation.requested_volume).label("total_requested"),
+            func.sum(Allocation.allocated_volume).label("total_allocated"),
+            func.sum(case((Allocation.status == "Approved", 1), else_=0)).label("approved_count"),
+            func.sum(case((Allocation.status == "Reduced", 1), else_=0)).label("reduced_count"),
+            func.sum(case((Allocation.status == "Deferred", 1), else_=0)).label("deferred_count"),
+            func.sum(case((Allocation.status == "Rejected", 1), else_=0)).label("rejected_count"),
         )
-    return summaries
+        .group_by(Allocation.allocation_cycle)
+        .order_by(Allocation.allocation_cycle)
+        .all()
+    )
+
+    return [
+        CycleSummary(
+            allocation_cycle=row.allocation_cycle,
+            total_regions=row.total_regions,
+            total_requested=row.total_requested or 0.0,
+            total_allocated=row.total_allocated or 0.0,
+            approved_count=row.approved_count or 0,
+            reduced_count=row.reduced_count or 0,
+            deferred_count=row.deferred_count or 0,
+            rejected_count=row.rejected_count or 0,
+        )
+        for row in rows
+    ]
 
 
 @router.get("/{allocation_id}", response_model=AllocationRecord)

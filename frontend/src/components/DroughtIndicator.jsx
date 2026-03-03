@@ -10,7 +10,7 @@ export default function DroughtIndicator({ reservoirLevel, droughtMode }) {
   let textClass = 'text-blue-800'
   let iconBg = 'bg-blue-500'
 
-  if (level < 25 || (level < 25 && droughtMode)) {
+  if (level < 25) {
     status = 'emergency'
     color = 'red'
     label = '🚨 EMERGENCY LEVEL'
