@@ -1,0 +1,13 @@
+{
+  "crops": {
+    "rice": { "benchmark_liters_per_hectare_per_day": 12000, "drought_factor": 0.7 },
+    "wheat": { "benchmark_liters_per_hectare_per_day": 6000, "drought_factor": 0.8 },
+    "cotton": { "benchmark_liters_per_hectare_per_day": 9000, "drought_factor": 0.6 },
+    "sugarcane": { "benchmark_liters_per_hectare_per_day": 15000, "drought_factor": 0.65 },
+    "maize": { "benchmark_liters_per_hectare_per_day": 5000, "drought_factor": 0.75 },
+    "default": { "benchmark_liters_per_hectare_per_day": 8000, "drought_factor": 0.7 }
+  },
+  "agricultural_statutory_cap_liters_per_day": 50000000,
+  "industrial_statutory_cap_liters_per_day": 20000000,
+  "industrial_benchmark_per_unit_liters_per_day": 500000
+}
