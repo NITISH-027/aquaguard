@@ -1,16 +1,31 @@
-import axios from 'axios'
+import axios from "axios"
 
-const BASE_URL = '/api'
+const BASE_URL = "https://aquaguard-vklv.onrender.com/api"
 
-const client = axios.create({ baseURL: BASE_URL })
+const client = axios.create({
+  baseURL: BASE_URL
+})
 
-export const requestAllocation = (data) => client.post('/allocations/', data)
-export const listAllocations = (params) => client.get('/allocations/', { params })
-export const getAllocation = (id) => client.get(`/allocations/${id}`)
-export const getCycleSummary = () => client.get('/allocations/cycle-summary')
+export const requestAllocation = (data) =>
+  client.post("/allocations/", data)
 
-export const listAuditLogs = (params) => client.get('/audit-logs/', { params })
-export const getAuditLog = (logId) => client.get(`/audit-logs/${logId}`)
+export const listAllocations = (params) =>
+  client.get("/allocations/", { params })
 
-export const getReservoirStatus = (params) => client.get('/reservoir/status', { params })
-export const healthCheck = () => client.get('/health')
+export const getAllocation = (id) =>
+  client.get(`/allocations/${id}`)
+
+export const getCycleSummary = () =>
+  client.get("/allocations/cycle-summary")
+
+export const listAuditLogs = (params) =>
+  client.get("/audit-logs/", { params })
+
+export const getAuditLog = (logId) =>
+  client.get(`/audit-logs/${logId}`)
+
+export const getReservoirStatus = (params) =>
+  client.get("/reservoir/status", { params })
+
+export const healthCheck = () =>
+  client.get("/health")
